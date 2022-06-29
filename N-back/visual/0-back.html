@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0-BACK</title>
+    <link rel="stylesheet" type="text/css" href="../index.css">
+</head>
+
+<body>
+    <h1 class="title">0-back</h1>
+    <div class="game_area">点击屏幕开始</div>
+    <div class='result'>
+        <h2>🎉恭喜🎉</h2>
+        <p>正确点击5次</p>
+        <p>误点击2次</p>
+        <p>漏点3次</p>
+    </div>
+</body>
+<script>
+    // 设置参数
+    var target = 3;//目标数字
+    var set_time = 1;//每个数字出现的持续时间
+
+    var ReactTime = [];//反应时间存放的数组|0:不需要按且没按；1:需要按没按；-1:不需要按按了；其他数字：需要按且按下的时间戳
+    var success_count = 0;//点击正确的次数
+    var fail_count = 0;//点击错误的次数
+    var miss_count=0;//错过点击的次数
+    var total_time = 20;//游戏总时长
+    var random_list = [];//随机产生的数组
+    var timer;
+    var start_time, end_time;
+    var flag = 0;
+
+    var number = document.querySelector('.game_area')
+    var result=document.querySelector('.result')
+    result.style.display="none";
+    if (total_time > 0) {
+        number.addEventListener('click',fn)
+    }
+    function fn(){
+        console.log("你点击了start")
+            var random_number;
+            clearInterval(timer);
+            timer = setInterval(function () {
+                ReactTime[flag] = 0;
+                start_time = Date.now();
+                random_number = Math.floor(Math.random() * 10)
+                random_list.push(random_number);
+                number.innerHTML = random_number;
+                number.style.background = randomRgbColor();
+                if (random_number == target) {
+                    ReactTime[flag] = 1
+                    document.onclick = function (e) {
+                        var evt = e || window.event;
+                        var tar = evt.target || evt.srcElement;
+                        if (tar == number) {
+                            end_time = Date.now();
+                            ReactTime[flag - 1] = (end_time - start_time);
+                            console.log("点击对了", end_time - start_time)
+                        }
+                    }
+
+                }
+                if (random_number != target) {
+                    document.onclick = function (e) {
+                        var evt = e || window.event;
+                        var tar = evt.target || evt.srcElement;
+                        if (tar == number) {
+                            ReactTime[flag - 1] = -1
+                            console.log("点击错了")
+                        }
+                    }
+                }
+                flag++;
+                total_time--;
+                console.log(total_time);
+                if (total_time <= 0) {
+                    clearInterval(timer);
+                    console.log("React_Time:", ReactTime);
+                    console.log("random_list", random_list);
+                    number.removeEventListener('click',fn);
+                    for(var i=0;i<ReactTime.length;i++){
+                        if(ReactTime[i]==1){
+                            miss_count++;
+                        }
+                        else if(ReactTime[i]==-1){
+                            fail_count++;
+                        }
+                        else if(ReactTime[i]==0){
+
+                        }
+                        else{
+                            success_count++;
+                        }
+                    }
+                    var p1="正确点击"+success_count+"次"
+                    result.children[1].innerHTML=p1
+                    var p2="错误点击"+fail_count+"次"
+                    result.children[2].innerHTML=p2
+                    var p3="漏点"+miss_count+"次"
+                    result.children[3].innerHTML=p3
+                    result.style.display="block";
+                }
+            }, set_time * 1000)
+    }
+    function randomRgbColor() { //随机生成RGB颜色
+        var r = Math.floor(Math.random() * 256); //随机生成256以内r值
+        var g = Math.floor(Math.random() * 256); //随机生成256以内g值
+        var b = Math.floor(Math.random() * 256); //随机生成256以内b值
+        var alpha = 0.5;
+        return `rgb(${r},${g},${b},${alpha})`; //返回rgb(r,g,b)格式颜色
+    }
+
+</script>
+
+</html>
